@@ -1,8 +1,6 @@
 # Beta Divergence Loss - PyTorch Implementation
 
-## Overview
-
-This repository contains code of a PyTorch implementation of the beta divergence loss.
+This repository contains code for a PyTorch implementation of the beta divergence loss.
 
 
 ## Dependencies
