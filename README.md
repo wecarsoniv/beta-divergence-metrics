@@ -7,7 +7,7 @@ This repository contains code of a PyTorch implementation of the beta divergence
 
 ## Dependencies
 
-This package is written in Python, and requires Python (with recommended version >= 3.9) to run. This package relies on the following libraries and version numbers:
+This package is written in Python, and requires Python (with recommended version >= 3.9) to run. In addition to a working Pytorch installation, this package relies on the following libraries and version numbers:
 
 * [Python](https://www.python.org/) >= 3.9
 * [NumPy](https://numpy.org/) >= 1.22.0
