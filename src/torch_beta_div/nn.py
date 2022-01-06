@@ -32,7 +32,7 @@ EPSILON = float(np.finfo(np.float32).eps)
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Beta-divergence loss class
-class BetaDivergence(nn.modules.loss._Loss):
+class BetaDivLoss(nn.modules.loss._Loss):
     r"""
     Beta divergence loss class. Code modified from scikit-learn implementation of beta-divergence to work with PyTorch.
     
@@ -80,7 +80,7 @@ class BetaDivergence(nn.modules.loss._Loss):
         """
         
         # Inherit from loss base class
-        super(BetaDivergence, self).__init__()
+        super().__init__()
         
         # Check for proper type/value and assign beta divergence beta value
         if (not isinstance(beta, float)) & (not isinstance(beta, int)):
