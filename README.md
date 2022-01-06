@@ -24,7 +24,7 @@ To install the latest stable release, use [pip](https://pip.pypa.io/en/stable/).
 The `nn.py` module contains two beta-divergence implementations: one general beta-divergence between two 2-dimensional matrices or tensors, and a beta-divergence implementation specific to non-negative matrix factorization (NMF). Import both beta-divergence implementations as follows:
 
 ```python
-# Import PyTorchbeta-divergence implementations
+# Import PyTorch beta-divergence implementations
 from torch_beta_div.nn import *
 
 ```
