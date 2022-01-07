@@ -1,6 +1,6 @@
-# Beta Divergence Loss - PyTorch Implementation
+# Beta-Divergence Loss - PyTorch Implementations
 
-This repository contains code for the Python package `torchbd`: PyTorch implementations of the beta divergence loss.
+This repository contains code for the Python package `torchbd`: PyTorch implementations of the beta-divergence loss.
 
 
 ## Dependencies
@@ -61,7 +61,7 @@ loss = nmf_beta_div_loss(X=X, H=H, W=W)
 
 ### Choosing beta value
 
-When instantiating beta divergence loss objects, the value of beta should be chosen depending on data type and application. Integer values of beta correspond to the following divergences and loss functions:
+When instantiating beta-divergence loss objects, the value of beta should be chosen depending on data type and application. Integer values of beta correspond to the following divergences and loss functions:
 
 * beta = 0: [Itakura-Saito divergence](https://en.wikipedia.org/wiki/Itakura-Saito_distance)
 * beta = 1: [Kullback-Leibler divergence](https://en.wikipedia.org/wiki/Kullback-Leibler_divergence)
