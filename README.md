@@ -1,11 +1,11 @@
 # Beta Divergence Loss - PyTorch Implementation
 
-This repository contains code for a PyTorch implementation of the beta divergence loss.
+This repository contains code for the Python package `torchbd`: PyTorch implementations of the beta divergence loss.
 
 
 ## Dependencies
 
-This package is written in Python, and requires Python (with recommended version >= 3.9) to run. In addition to a working Pytorch installation, this package relies on the following libraries and version numbers:
+The `torchbd` package is written in Python, and requires Python (with recommended version >= 3.9) to run. In addition to a working Pytorch installation, this package relies on the following libraries and version numbers:
 
 * [Python](https://www.python.org/) >= 3.9
 * [NumPy](https://numpy.org/) >= 1.22.0
@@ -21,11 +21,11 @@ To install the latest stable release, use [pip](https://pip.pypa.io/en/stable/).
 
 ## Usage
 
-The [`nn.py`](https://github.com/wecarsoniv/pytorch-beta-divergence/blob/main/src/torch_beta_div/nn.py) module contains two beta-divergence implementations: one general beta-divergence between two 2-dimensional matrices or tensors, and a beta-divergence implementation specific to non-negative matrix factorization (NMF). Import both beta-divergence implementations as follows:
+The [`nn.py`](https://github.com/wecarsoniv/pytorch-beta-divergence/blob/main/src/torch_beta_div/nn.py) module contains two beta-divergence implementations: one general beta-divergence between two 2-dimensional matrices or tensors, and a beta-divergence implementation specific to non-negative matrix factorization (NMF). Import both beta-divergence implementations from the `torchbd` package as follows:
 
 ```python
 # Import PyTorch beta-divergence implementations
-from torch_beta_div.nn import *
+from torchbd.nn import *
 
 ```
 
