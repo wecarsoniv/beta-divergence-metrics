@@ -52,7 +52,8 @@ To calculate the NMF-specific beta-divergence between data matrix `X` and the ma
 # Instantiate NMF beta-divergence loss object
 nmf_beta_div_loss = NMFBetaDivLoss(beta=0, reduction='mean')
 
-# Calculate beta-divergence loss between data matrix X (target or reference matrix) and matrix product of H and W.
+# Calculate beta-divergence loss between data matrix X (target or
+# reference matrix) and matrix product of H and W.
 loss = nmf_beta_div_loss(X=X, H=H, W=W)
 
 ```
