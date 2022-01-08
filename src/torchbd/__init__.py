@@ -5,10 +5,10 @@
 # File:  __init__.py
 # Author:  Billy Carson
 # Date written:  01-06-2022
-# Last modified:  01-06-2022
+# Last modified:  01-08-2022
 
 r"""
-PyTorch beta divergence loss package __init__.py file.
+Beta-divergence loss Pytorch implementations __init__.py file.
 """
 
 

@@ -5,11 +5,11 @@
 # File:  nn.py
 # Author:  Billy Carson
 # Date written:  10-19-2021
-# Last modified:  01-06-2022
+# Last modified:  01-08-2022
 
 """
-Description:  Beta-divergence PyTorch custom loss class definition file. Code modified from scikit-learn implementation
-of beta-divergence.
+Description:  Beta-divergence loss PyTorch implementations class definition file. Code modified from scikit-learn
+implementation of beta-divergence.
 """
 
 
@@ -21,7 +21,6 @@ of beta-divergence.
 import numpy as np
 from scipy.sparse import issparse
 import torch
-import torch.nn as nn
 
 # Define constants
 EPSILON = float(np.finfo(np.float32).eps)
@@ -32,21 +31,21 @@ EPSILON = float(np.finfo(np.float32).eps)
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Beta-divergence loss class
-class BetaDivLoss(nn.modules.loss._Loss):
+class BetaDivLoss(torch.nn.modules.loss._Loss):
     r"""
-    Beta divergence loss class. Code modified from scikit-learn implementation of beta-divergence to work with PyTorch.
+    Beta-divergence loss class. Code modified from scikit-learn implementation of beta-divergence to work with PyTorch.
     
     Parameters
     ----------
     beta : float or int
-        Beta value for beta divergence loss. Default is 0 (Itakura-Saito divergence).
+        Beta value for beta-divergence loss. Default is 0 (Itakura-Saito divergence).
     reduction : str
         Loss reduction type. Default is 'mean' (average over batch size and number of features).
     
     Attributes
     ----------
     beta : float or int
-        Beta value for beta divergence loss. Default is 0 (Itakura-Saito divergence).
+        Beta value for beta-divergence loss. Default is 0 (Itakura-Saito divergence).
     reduction : str
         Loss reduction type. Default is 'mean' (average over batch size and number of features).
     
@@ -59,12 +58,12 @@ class BetaDivLoss(nn.modules.loss._Loss):
     # Beta-divergence loss instantiation method
     def __init__(self, beta: float, reduction='mean'):
         r"""
-        Beta divergence loss class instantiation method.
+        Beta-divergence loss class instantiation method.
         
         Parameters
         ----------
         beta : float or int
-            Beta value for beta divergence loss. Default is 0 (Itakura-Saito divergence).
+            Beta value for beta-divergence loss. Default is 0 (Itakura-Saito divergence).
         reduction : str
             Loss reduction type. Default is 'mean' (average over batch size and number of features).
         
@@ -76,7 +75,7 @@ class BetaDivLoss(nn.modules.loss._Loss):
         # Inherit from loss base class
         super().__init__()
         
-        # Check for proper type/value and assign beta divergence beta value
+        # Check for proper type/value and assign beta-divergence beta value
         if (not isinstance(beta, float)) & (not isinstance(beta, int)):
             raise TypeError('Beta must be an integer or float value greater than or equal to 0.')
         elif beta < 0.0:
@@ -106,7 +105,7 @@ class BetaDivLoss(nn.modules.loss._Loss):
         Returns
         -------
         beta_div_loss : torch.Tensor
-            Beta divergence between input and target (reference) matrices.
+            Beta-divergence between input and target (reference) matrices.
         """
         
         # Get number of samples and features from shape of data
@@ -162,22 +161,22 @@ class BetaDivLoss(nn.modules.loss._Loss):
 
 
 # NMF beta-divergence loss class
-class NMFBetaDivLoss(nn.modules.loss._Loss):
+class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
     r"""
-    NMF beta divergence loss class. Code modified from scikit-learn implementation of beta-divergence to work with
+    NMF beta-divergence loss class. Code modified from scikit-learn implementation of beta-divergence to work with
     PyTorch.
     
     Parameters
     ----------
     beta : float or int
-        Beta value for beta divergence loss. Default is 0 (Itakura-Saito divergence).
+        Beta value for beta-divergence loss. Default is 0 (Itakura-Saito divergence).
     reduction : str
         Loss reduction type. Default is 'mean' (average over batch size and number of features).
     
     Attributes
     ----------
     beta : float or int
-        Beta value for beta divergence loss. Default is 0 (Itakura-Saito divergence).
+        Beta value for beta-divergence loss. Default is 0 (Itakura-Saito divergence).
     reduction : str
         Loss reduction type. Default is 'mean' (average over batch size and number of features).
     
@@ -196,12 +195,12 @@ class NMFBetaDivLoss(nn.modules.loss._Loss):
     # Beta-divergence loss instantiation method
     def __init__(self, beta: float, reduction='mean'):
         r"""
-        NMF beta divergence loss class instantiation method.
+        NMF beta-divergence loss class instantiation method.
         
         Parameters
         ----------
         beta : float or int
-            Beta value for beta divergence loss. Default is 0 (Itakura-Saito divergence).
+            Beta value for beta-divergence loss. Default is 0 (Itakura-Saito divergence).
         reduction : str
             Loss reduction type. Default is 'mean' (average over batch size and number of features).
         
@@ -213,7 +212,7 @@ class NMFBetaDivLoss(nn.modules.loss._Loss):
         # Inherit from loss base class
         super().__init__()
         
-        # Check for proper type/value and assign beta divergence beta value
+        # Check for proper type/value and assign beta-divergence beta value
         if (not isinstance(beta, float)) & (not isinstance(beta, int)):
             raise TypeError('Beta must be an integer or float value greater than or equal to 0.')
         elif beta < 0.0:
@@ -245,7 +244,7 @@ class NMFBetaDivLoss(nn.modules.loss._Loss):
         Returns
         -------
         beta_div_loss : torch.Tensor
-            Beta divergence of X and product of matrices H and W.
+            Beta-divergence of X and product of matrices H and W.
         """
         
         # Get number of samples and features from shape of data
