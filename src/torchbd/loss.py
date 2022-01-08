@@ -2,7 +2,7 @@
 # FILE DESCRIPTION
 # ----------------------------------------------------------------------------------------------------------------------
 
-# File:  nn.py
+# File:  loss.py
 # Author:  Billy Carson
 # Date written:  10-19-2021
 # Last modified:  01-08-2022
@@ -108,6 +108,14 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
             Beta-divergence between input and target (reference) matrices.
         """
         
+        # Check input and target tensor dimensions
+        if len(input.shape) != len(target.shape):
+            raise ValueError('Input and target matrices must have same number of dimensions.')
+        
+        # Check input and target tensor shapes
+        if input.shape != target.shape:
+            raise ValueError('Input and target matrices must have same shape.')
+        
         # Get number of samples and features from shape of data
         target_shape = target.shape
         n_samp = target_shape[0]
@@ -123,7 +131,7 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
         target_flat = target_flat[eps_idx]
 
         # Used to avoid division by zero
-        input_flat[input_flat == 0.0] = EPSILON
+        input_flat[input_flat <= EPSILON] = EPSILON
 
         # Generalized Kullback-Leibler divergence
         if self.beta == 1:            
@@ -137,8 +145,8 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
         # Itakura-Saito divergence
         elif self.beta == 0:
             div = target_flat / input_flat
-            beta_div_loss = torch.sum(div) - torch.prod(torch.Tensor(target_flat.shape)) \ 
-                - torch.sum(torch.log(div))
+            beta_div_loss = torch.sum(div) - torch.prod(torch.Tensor(target_flat.shape))
+            beta_div_loss -= torch.sum(torch.log(div))
 
         # Calculate beta-divergence when beta not equal to 0, 1, or 2
         else:
@@ -147,7 +155,7 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
             beta_div_loss = torch.sum(target_flat ** self.beta) - (self.beta * target_input_sum)
             beta_div_loss += input_beta_sum * (self.beta - 1.0)
             beta_div_loss /= self.beta * (self.beta - 1.0)
-            
+        
         # Mean reduction
         if self.reduction == 'mean':
             beta_div_loss /= (n_samp * n_feat)
@@ -247,6 +255,14 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
             Beta-divergence of X and product of matrices H and W.
         """
         
+        # Check data and reconstruction tensor dimensions
+        if len(X.shape) != len(H.shape[:-1] + W.shape[1:]):
+            raise ValueError('Data matrix and data reconstruction matrix must have same number of dimensions.')
+        
+        # Check input and target tensor shapes
+        if X.shape != H.shape[:-1] + W.shape[1:]:
+            raise ValueError('Data matrix and data reconstruction matrix must have same shape.')
+        
         # Get number of samples and features from shape of data
         X_shape = X.shape
         n_samp = X_shape[0]
@@ -280,7 +296,7 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
         X_flat = X_flat[eps_idx]
 
         # Used to avoid division by zero
-        X_hat_flat[X_hat_flat == 0.0] = EPSILON
+        X_hat_flat[X_hat_flat <= EPSILON] = EPSILON
 
         # Generalized Kullback-Leibler divergence
         if self.beta == 1:
@@ -348,7 +364,7 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
     
     # Special sparse dot product
     @staticmethod
-    def _special_sparse_mm(X: torch.Tensor, H: torch.Tensor, W: torch.Tensor): -> torch.Tensor:
+    def _special_sparse_mm(X: torch.Tensor, H: torch.Tensor, W: torch.Tensor) -> torch.Tensor:
         r"""
         Computes product of matrices of H and W where X is non-zero.
         
@@ -389,7 +405,7 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
 
     # Squared norm method
     @staticmethod
-    def _squared_norm(a: torch.Tensor): -> torch.Tensor:
+    def _squared_norm(a: torch.Tensor) -> torch.Tensor:
         r"""
         Squared Euclidean or Frobenius norm of a.
         

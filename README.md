@@ -21,11 +21,11 @@ To install the latest stable release, use [pip](https://pip.pypa.io/en/stable/).
 
 ## Usage
 
-The [`nn.py`](https://github.com/wecarsoniv/pytorch-beta-divergence/blob/main/src/torchbd/nn.py) module contains two beta-divergence implementations: one general beta-divergence between two 2-dimensional matrices or tensors, and a beta-divergence implementation specific to non-negative matrix factorization (NMF). Import both beta-divergence implementations from the `torchbd` package as follows:
+The [`loss.py`](https://github.com/wecarsoniv/pytorch-beta-divergence/blob/main/src/torchbd/loss.py) module contains two beta-divergence implementations: one general beta-divergence between two 2-dimensional matrices or tensors, and a beta-divergence implementation specific to non-negative matrix factorization (NMF). Import both beta-divergence implementations from the `torchbd` package as follows:
 
 ```python
 # Import PyTorch beta-divergence implementations
-from torchbd.nn import *
+from torchbd.loss import *
 
 ```
 
