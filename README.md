@@ -5,7 +5,7 @@ This repository contains code for the Python package `torchbd`: PyTorch implemen
 
 ## Dependencies
 
-The `torchbd` package is written in Python, and requires Python (with recommended version >= 3.9) to run. In addition to a working Pytorch installation, this package relies on the following libraries and version numbers:
+The [`torchbd`](https://github.com/wecarsoniv/pytorch-beta-divergence/tree/main/src/torchbd) package is written in Python, and requires Python (with recommended version >= 3.9) to run. In addition to a working Pytorch installation, this package relies on the following libraries and version numbers:
 
 * [Python](https://www.python.org/) >= 3.9
 * [NumPy](https://numpy.org/) >= 1.22.0
