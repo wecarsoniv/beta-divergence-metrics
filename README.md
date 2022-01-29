@@ -48,10 +48,10 @@ To calculate the beta-divergence between tensor `a` and a target or reference te
 
 ```python
 # Instantiate beta-divergence loss object
-beta_div_loss = BetaDivLoss(beta=0, reduction='mean')
+loss_func = BetaDivLoss(beta=0, reduction='mean')
 
 # Calculate beta-divergence loss between tensor a and target tensor b
-loss_val = beta_div_loss(input=a, target=b)
+loss_val = loss_func(input=a, target=b)
 
 ```
 
@@ -74,11 +74,11 @@ To calculate the NMF-specific beta-divergence between a PyTorch tensor of data m
 
 ```python
 # Instantiate NMF beta-divergence loss object
-nmf_beta_div_loss = NMFBetaDivLoss(beta=0, reduction='mean')
+loss_func = NMFBetaDivLoss(beta=0, reduction='mean')
 
 # Calculate beta-divergence loss between data matrix X (target or
 # reference matrix) and matrix product of H and W
-loss_val = nmf_beta_div_loss(X=X, H=H, W=W)
+loss_val = loss_func(X=X, H=H, W=W)
 
 ```
 
