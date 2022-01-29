@@ -5,7 +5,7 @@
 # File:  loss.py
 # Author:  Billy Carson
 # Date written:  10-19-2021
-# Last modified:  01-08-2022
+# Last modified:  01-29-2022
 
 """
 Description:  Beta-divergence loss PyTorch implementations class definition file. Code modified from scikit-learn
@@ -48,6 +48,8 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
         Beta value for beta-divergence loss. Default is 0 (Itakura-Saito divergence).
     reduction : str
         Loss reduction type. Default is 'mean' (average over batch size and number of features).
+    square_root : bool
+        Indicates whether to take square root of final loss value. Default is False.
     
     Methods
     -------
@@ -56,7 +58,7 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
     """
     
     # Beta-divergence loss instantiation method
-    def __init__(self, beta: float, reduction='mean'):
+    def __init__(self, beta: float, reduction='mean', square_root=False):
         r"""
         Beta-divergence loss class instantiation method.
         
@@ -89,6 +91,11 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
             raise ValueError('Reduction type not recognized. Accepted reductions are \"mean\", \"batchmean\", ' + \
                              'and \"sum\".')
         self.reduction = reduction
+        
+        # Check for proper type/value of square root option
+        if not isinstance(square_root, bool):
+            raise TypeError('Square root option must be of type bool.')
+        self.square_root = square_root
     
     # Beta-divergence loss forward method
     def forward(self, input: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
@@ -104,7 +111,7 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
         
         Returns
         -------
-        beta_div_loss : torch.Tensor
+        loss_val : torch.Tensor
             Beta-divergence between input and target (reference) matrices.
         """
         
@@ -124,48 +131,52 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
         # Flatten input and target matrices
         input_flat = input.flatten()
         target_flat = target.flatten()
-
+        
         # Do not affect the zeros: here 0 ** (-1) = 0 and not infinity
         eps_idx = target_flat > EPSILON
         input_flat = input_flat[eps_idx]
         target_flat = target_flat[eps_idx]
-
+        
         # Used to avoid division by zero
-        input_flat[input_flat <= EPSILON] = EPSILON
-
+        # input_flat[input_flat <= EPSILON] = EPSILON
+        input_flat[input_flat == 0] = EPSILON
+        
         # Generalized Kullback-Leibler divergence
         if self.beta == 1:            
             # Computes sum of target * log(target / input) only where target is non-zero
             div = target_flat / input_flat
-            beta_div_loss = torch.dot(target_flat, torch.log(div))
+            loss_val = torch.dot(target_flat, torch.log(div))
             
             # Add difference between full sum of input matrix and full sum of target matrix
-            beta_div_loss += torch.sum(input_flat) - torch.sum(target_flat)
-
+            loss_val += torch.sum(input_flat) - torch.sum(target_flat)
+        
         # Itakura-Saito divergence
         elif self.beta == 0:
             div = target_flat / input_flat
-            beta_div_loss = torch.sum(div) - torch.prod(torch.Tensor(target_flat.shape))
-            beta_div_loss -= torch.sum(torch.log(div))
-
+            loss_val = torch.sum(div) - torch.prod(torch.Tensor(target.shape)) - torch.sum(torch.log(div))
+        
         # Calculate beta-divergence when beta not equal to 0, 1, or 2
         else:
             input_beta_sum = torch.sum(input ** self.beta)
             target_input_sum = torch.dot(target_flat, input_flat ** (self.beta - 1.0))
-            beta_div_loss = torch.sum(target_flat ** self.beta) - (self.beta * target_input_sum)
-            beta_div_loss += input_beta_sum * (self.beta - 1.0)
-            beta_div_loss /= self.beta * (self.beta - 1.0)
+            loss_val = torch.sum(target_flat ** self.beta) - (self.beta * target_input_sum)
+            loss_val += input_beta_sum * (self.beta - 1.0)
+            loss_val /= self.beta * (self.beta - 1.0)
         
         # Mean reduction
         if self.reduction == 'mean':
-            beta_div_loss /= (n_samp * n_feat)
-            
+            loss_val /= (n_samp * n_feat)
+        
         # Batch-wise mean reduction
         elif self.reduction == 'batchmean':
-            beta_div_loss /= n_samp
+            loss_val /= n_samp
+        
+        # Square root of beta-divergence loss
+        if self.square_root:
+            loss_val /= torch.sqrt(2.0 * loss_val)
         
         # Return beta-divergence loss
-        return beta_div_loss
+        return loss_val
 
 
 # NMF beta-divergence loss class
@@ -187,6 +198,8 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
         Beta value for beta-divergence loss. Default is 0 (Itakura-Saito divergence).
     reduction : str
         Loss reduction type. Default is 'mean' (average over batch size and number of features).
+    square_root : bool
+        Indicates whether to take square root of final loss value. Default is False.
     
     Methods
     -------
@@ -234,6 +247,11 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
             raise ValueError('Reduction type not recognized. Accepted reductions are \"mean\", \"batchmean\", ' + \
                              'and \"sum\".')
         self.reduction = reduction
+        
+        # Check for proper type/value of square root option
+        if not isinstance(square_root, bool):
+            raise TypeError('Square root option must be of type bool.')
+        self.square_root = square_root
     
     # NMF beta-divergence loss forward method
     def forward(self, X: torch.Tensor, H: torch.Tensor, W: torch.Tensor) -> torch.Tensor:
@@ -251,7 +269,7 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
         
         Returns
         -------
-        beta_div_loss : torch.Tensor
+        loss_val : torch.Tensor
             Beta-divergence of X and product of matrices H and W.
         """
         
@@ -275,10 +293,10 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
                 X_norm = torch.mm(X, X.T)
                 X_hat_norm = self._trace_dot(a=torch.mm(torch.mm(H.T, H), W), b=W)
                 cross_prod = self._trace_dot(a=(X * W.T), b=H)
-                beta_div_loss = (X_norm + X_hat_norm - (2.0 * cross_prod)) / 2.0
+                loss_val = (X_norm + X_hat_norm - (2.0 * cross_prod)) / 2.0
             else:
-                beta_div_loss = self._squared_norm(a=X - torch.mm(H, W)) / 2.0
-
+                loss_val = self._squared_norm(a=X - torch.mm(H, W)) / 2.0
+        
         # Compute X_hat where X is not equal to zero
         if issparse(X.detach().cpu().numpy()):
             X_hat_flat = _special_sparse_mm(X=X, H=H, W=W).flatten()
@@ -289,15 +307,16 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
             X_hat = torch.mm(H, W)
             X_hat_flat = X_hat.flatten()
             X_flat = X.flatten()
-
+        
         # Do not affect the zeros: here 0 ** (-1) = 0 and not infinity
         eps_idx = X_flat > EPSILON
         X_hat_flat = X_hat_flat[eps_idx]
         X_flat = X_flat[eps_idx]
-
+        
         # Used to avoid division by zero
-        X_hat_flat[X_hat_flat <= EPSILON] = EPSILON
-
+        # X_hat_flat[X_hat_flat <= EPSILON] = EPSILON
+        X_hat_flat[X_hat_flat == 0] = EPSILON
+        
         # Generalized Kullback-Leibler divergence
         if self.beta == 1:
             # Fast and memory efficient computation of sum of elements of matrix multiplication of H and W
@@ -305,16 +324,16 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
             
             # Computes sum of X * log(X / HW) only where X is non-zero
             div = X_flat / X_hat_flat
-            beta_div_loss = torch.dot(X_flat, torch.log(div))
+            loss_val = torch.dot(X_flat, torch.log(div))
             
             # Add difference between full sum of matrix multiplication of H and W and full sum of X
-            beta_div_loss += X_hat_sum - torch.sum(X_flat)
-
+            loss_val += X_hat_sum - torch.sum(X_flat)
+        
         # Itakura-Saito divergence
         elif self.beta == 0:
             div = X_flat / X_hat_flat
-            beta_div_loss = torch.sum(div) - torch.prod(torch.Tensor(X.shape)) - torch.sum(torch.log(div))
-
+            loss_val = torch.sum(div) - torch.prod(torch.Tensor(X.shape)) - torch.sum(torch.log(div))
+        
         # Calculate beta-divergence when beta not equal to 0, 1, or 2
         else:
             if issparse(X.detach().cpu().numpy()):
@@ -322,20 +341,24 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
             else:
                 X_hat_beta_sum = torch.sum(X_hat ** self.beta)
             X_X_hat_sum = torch.dot(X_flat, X_hat_flat ** (self.beta - 1.0))
-            beta_div_loss = torch.sum(X_flat ** self.beta) - (self.beta * X_X_hat_sum)
-            beta_div_loss += X_hat_beta_sum * (self.beta - 1.0)
-            beta_div_loss /= self.beta * (self.beta - 1.0)
-            
+            loss_val = torch.sum(X_flat ** self.beta) - (self.beta * X_X_hat_sum)
+            loss_val += X_hat_beta_sum * (self.beta - 1.0)
+            loss_val /= self.beta * (self.beta - 1.0)
+        
         # Mean reduction
         if self.reduction == 'mean':
-            beta_div_loss /= (n_samp * n_feat)
-            
+            loss_val /= (n_samp * n_feat)
+        
         # Batch-wise mean reduction
         elif self.reduction == 'batchmean':
-            beta_div_loss /= n_samp
+            loss_val /= n_samp
+        
+        # Square root of beta-divergence loss
+        if self.square_root:
+            loss_val /= torch.sqrt(2.0 * loss_val)
         
         # Return beta-divergence loss
-        return beta_div_loss
+        return loss_val
     
     # Trace dot product method
     @staticmethod
@@ -349,7 +372,7 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
             First tensor.
         b : torch.Tensor
             Second tensor.
-            
+        
         Returns
         -------
         a_b_trace_dot : torch.Tensor
@@ -358,7 +381,7 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
         
         # Compute trace dot
         a_b_trace_dot = torch.dot(a.flatten(), b.flatten())
-                         
+        
         # Return computed trace dot
         return a_b_trace_dot
     
@@ -376,7 +399,7 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
             Scores/encodings tensor; shape (n_samples, n_components).
         W : torch.Tensor
             Components tensor; shape (n_components, n_features).
-            
+        
         Returns
         -------
         X_hat : torch.Tensor
@@ -402,7 +425,7 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
         
         # Return product of matrices H and W
         return X_hat
-
+    
     # Squared norm method
     @staticmethod
     def _squared_norm(a: torch.Tensor) -> torch.Tensor:
