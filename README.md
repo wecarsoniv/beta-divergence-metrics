@@ -21,7 +21,7 @@ To install the latest stable release, use [pip](https://pip.pypa.io/en/stable/).
 
 ## Usage
 
-The [`numpybd.loss`](https://github.com/wecarsoniv/beta-divergence-metrics/blob/main/src/numpy/loss.py) module contains two beta-divergence function implementations compatible with NumPy and NumPy arrays: one general beta-divergence between two arrays, and a beta-divergence implementation specific to non-negative matrix factorization (NMF). Similarly [`torchbd.loss`](https://github.com/wecarsoniv/beta-divergence-metrics/blob/main/src/torchbd/loss.py) module contains two beta-divergence class implementations compatible with Pytorch and PyTorch tensors. Beta-divergence implementations can be imported as follows:
+The [`numpybd.loss`](https://github.com/wecarsoniv/beta-divergence-metrics/blob/main/src/numpybd/loss.py) module contains two beta-divergence function implementations compatible with NumPy and NumPy arrays: one general beta-divergence between two arrays, and a beta-divergence implementation specific to non-negative matrix factorization (NMF). Similarly [`torchbd.loss`](https://github.com/wecarsoniv/beta-divergence-metrics/blob/main/src/torchbd/loss.py) module contains two beta-divergence class implementations compatible with Pytorch and PyTorch tensors. Beta-divergence implementations can be imported as follows:
 
 ```python
 # Import beta-divergence loss implementations
