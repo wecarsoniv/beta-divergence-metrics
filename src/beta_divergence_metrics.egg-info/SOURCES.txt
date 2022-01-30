@@ -1,0 +1,12 @@
+README.md
+pyproject.toml
+setup.cfg
+setup.py
+src/beta_divergence_metrics.egg-info/PKG-INFO
+src/beta_divergence_metrics.egg-info/SOURCES.txt
+src/beta_divergence_metrics.egg-info/dependency_links.txt
+src/beta_divergence_metrics.egg-info/top_level.txt
+src/numpybd/__init__.py
+src/numpybd/loss.py
+src/torchbd/__init__.py
+src/torchbd/loss.py

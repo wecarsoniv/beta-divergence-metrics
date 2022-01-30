@@ -8,7 +8,7 @@
 # Last modified:  01-28-2022
 
 r"""
-Beta-divergence loss Numpy implementations __init__.py file.
+Beta-divergence loss NumPy implementations __init__.py file.
 """
 
 

@@ -8,7 +8,7 @@
 # Last modified:  01-08-2022
 
 r"""
-Beta-divergence loss Pytorch implementations __init__.py file.
+Beta-divergence loss PyTorch implementations __init__.py file.
 """
 
 
