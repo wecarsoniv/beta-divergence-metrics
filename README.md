@@ -5,7 +5,7 @@ This repository contains code for Python implementations of the beta-divergence 
 
 ## Dependencies
 
-This library is written in Python, and requires Python (with recommended version >= 3.9) to run. In addition to a working Pytorch installation, this library relies on the following libraries and recommended version numbers:
+This library is written in Python, and requires Python (with recommended version >= 3.9) to run. In addition to a working PyTorch installation, this library relies on the following libraries and recommended version numbers:
 
 * [Python](https://www.python.org/) >= 3.9
 * [NumPy](https://numpy.org/) >= 1.22.0
@@ -21,7 +21,7 @@ To install the latest stable release, use [pip](https://pip.pypa.io/en/stable/).
 
 ## Usage
 
-The [`numpybd.loss`](https://github.com/wecarsoniv/beta-divergence-metrics/blob/main/src/numpybd/loss.py) module contains two beta-divergence function implementations compatible with NumPy and NumPy arrays: one general beta-divergence between two arrays, and a beta-divergence implementation specific to non-negative matrix factorization (NMF). Similarly [`torchbd.loss`](https://github.com/wecarsoniv/beta-divergence-metrics/blob/main/src/torchbd/loss.py) module contains two beta-divergence class implementations compatible with Pytorch and PyTorch tensors. Beta-divergence implementations can be imported as follows:
+The [`numpybd.loss`](https://github.com/wecarsoniv/beta-divergence-metrics/blob/main/src/numpybd/loss.py) module contains two beta-divergence function implementations compatible with NumPy and NumPy arrays: one general beta-divergence between two arrays, and a beta-divergence implementation specific to non-negative matrix factorization (NMF). Similarly [`torchbd.loss`](https://github.com/wecarsoniv/beta-divergence-metrics/blob/main/src/torchbd/loss.py) module contains two beta-divergence class implementations compatible with PyTorch and [PyTorch tensors](https://pytorch.org/tutorials/beginner/introyt/tensors_deeper_tutorial.html). Beta-divergence implementations can be imported as follows:
 
 ```python
 # Import beta-divergence loss implementations
@@ -31,13 +31,14 @@ from torchbd.loss import *
 ```
 
 
+
 ### Beta-divergence between two NumPy arrays
 
-To calculate the beta-divergence between a NumPy array `a` and a target or reference array `b`, use the `beta_div_loss` loss function. The `beta_div_loss` loss function can be used as follows:
+To calculate the beta-divergence between a NumPy array `a` and a target or reference array `b`, use the `beta_div` loss function. The `beta_div` loss function can be used as follows:
 
 ```python
 # Calculate beta-divergence loss between array a and target array b
-loss_val = beta_div_loss(beta=0, reduction='mean')
+loss_val = beta_div(beta=0, reduction='mean')
 
 ```
 
@@ -58,12 +59,12 @@ loss_val = loss_func(input=a, target=b)
 
 ### NMF beta-divergence between NumPy array of data and data reconstruction
 
-To calculate the NMF-specific beta-divergence between a NumPy array of data matrix `X` and the product of a scores matrix `H` and a components matrix `W`, use the `nmf_beta_div_loss` loss function. The `nmf_beta_div_loss` loss function can beused as follows:
+To calculate the NMF-specific beta-divergence between a NumPy array of data matrix `X` and the product of a scores matrix `H` and a components matrix `W`, use the `beta_div_nmf` loss function. The `beta_div_nmf` loss function can beused as follows:
 
 ```python
 # Calculate beta-divergence loss between data matrix X (target or
 # reference matrix) and matrix product of H and W
-loss_val = nmf_beta_div_loss(X=X, H=H, W=W, beta=0, reduction='mean')
+loss_val = beta_div_nmf(X=X, H=H, W=W, beta=0, reduction='mean')
 
 ```
 

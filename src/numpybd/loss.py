@@ -5,10 +5,10 @@
 # File:  loss.py
 # Author:  Billy Carson
 # Date written:  01-28-2022
-# Last modified:  01-29-2022
+# Last modified:  01-30-2022
 
 r"""
-Description:  Beta-divergence loss implementations functions definition file. Code modified from scikit-learn
+Description:  Beta-divergence loss NumPy implementations functions definition file. Code modified from scikit-learn
 implementation of beta-divergence.
 """
 
@@ -30,7 +30,7 @@ EPSILON = float(np.finfo(np.float32).eps)
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Calculates beta-divergence between two numpy.ndarrays
-def beta_div(a: np.ndarray, b: np.ndarray, beta: float, reduction='mean', square_root=False):
+def beta_div(a: np.ndarray, b: np.ndarray, beta: float, reduction='mean', square_root=False) -> float:
     r"""
     Beta-divergence loss function. Code modified from scikit-learn implementation of beta-divergence.
     
@@ -45,7 +45,7 @@ def beta_div(a: np.ndarray, b: np.ndarray, beta: float, reduction='mean', square
     
     Returns
     -------
-    loss_val : np.ndarray
+    loss_val : float
         Beta-divergence of arrays a and b (target).
     """
     
@@ -89,8 +89,8 @@ def beta_div(a: np.ndarray, b: np.ndarray, beta: float, reduction='mean', square
     b_flat = b_flat[eps_idx]
     
     # Used to avoid division by zero
-    # a_flat[a_flat <= EPSILON] = EPSILON
-    a_flat[a_flat == 0] = EPSILON
+    # a_flat[a_flat == 0] = EPSILON
+    a_flat[a_flat < EPSILON] = EPSILON
     
     # Generalized Kullback-Leibler divergence
     if beta == 1:            
@@ -132,7 +132,7 @@ def beta_div(a: np.ndarray, b: np.ndarray, beta: float, reduction='mean', square
 
 # Calculates beta-divergence between numpy.ndarray of data and numpy.ndarray of NMF approximation of data
 def beta_div_nmf(X: np.ndarray, H: np.ndarray, W: np.ndarray, beta: float, reduction='mean',
-                 square_root=False):
+                 square_root=False) -> float:
     r"""
     NMF beta-divergence loss function. Code modified from scikit-learn implementation of beta-divergence.
     
@@ -147,7 +147,7 @@ def beta_div_nmf(X: np.ndarray, H: np.ndarray, W: np.ndarray, beta: float, reduc
     
     Returns
     -------
-    loss_val : numpy.ndarray
+    loss_val : float
         Beta-divergence of X and product of matrices H and W.
     """
     
@@ -168,7 +168,7 @@ def beta_div_nmf(X: np.ndarray, H: np.ndarray, W: np.ndarray, beta: float, reduc
     if beta == 2:
         # Avoid creation of dense matrix multiplication of H and W if X is sparse
         if issparse(X):
-            X_norm = torch.mm(X, X.T)
+            X_norm = X @ X.T
             X_hat_norm = _trace_dot(a=((H.T @ H) @ W), b=W)
             cross_prod = _trace_dot(a=(X * W.T), b=H)
             loss_val = (X_norm + X_hat_norm - (2.0 * cross_prod)) / 2.0
@@ -192,8 +192,8 @@ def beta_div_nmf(X: np.ndarray, H: np.ndarray, W: np.ndarray, beta: float, reduc
     X_flat = X_flat[eps_idx]
     
     # Used to avoid division by zero
-    # X_hat_flat[X_hat_flat <= EPSILON] = EPSILON
-    X_hat_flat[X_hat_flat <= EPSILON] = EPSILON
+    # X_hat_flat[X_hat_flat == 0] = EPSILON
+    X_hat_flat[X_hat_flat < EPSILON] = EPSILON
     
     # Generalized Kullback-Leibler divergence
     if beta == 1:

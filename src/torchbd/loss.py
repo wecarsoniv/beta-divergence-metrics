@@ -5,7 +5,7 @@
 # File:  loss.py
 # Author:  Billy Carson
 # Date written:  10-19-2021
-# Last modified:  01-29-2022
+# Last modified:  01-30-2022
 
 """
 Description:  Beta-divergence loss PyTorch implementations class definition file. Code modified from scikit-learn
@@ -138,8 +138,8 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
         target_flat = target_flat[eps_idx]
         
         # Used to avoid division by zero
-        # input_flat[input_flat <= EPSILON] = EPSILON
-        input_flat[input_flat == 0] = EPSILON
+        # input_flat[input_flat == 0] = EPSILON
+        input_flat[input_flat < EPSILON] = EPSILON
         
         # Generalized Kullback-Leibler divergence
         if self.beta == 1:            
@@ -314,8 +314,8 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
         X_flat = X_flat[eps_idx]
         
         # Used to avoid division by zero
-        # X_hat_flat[X_hat_flat <= EPSILON] = EPSILON
-        X_hat_flat[X_hat_flat == 0] = EPSILON
+        # X_hat_flat[X_hat_flat == 0] = EPSILON
+        X_hat_flat[X_hat_flat < EPSILON] = EPSILON
         
         # Generalized Kullback-Leibler divergence
         if self.beta == 1:
