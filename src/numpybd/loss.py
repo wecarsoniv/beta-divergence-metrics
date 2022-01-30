@@ -12,12 +12,13 @@ Description:  Beta-divergence loss implementations functions definition file. Co
 implementation of beta-divergence.
 """
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # IMPORT STATEMENTS
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Import statements
-import numpy
+import numpy as np
 from scipy.sparse import issparse
 
 # Define constants
@@ -29,7 +30,7 @@ EPSILON = float(np.finfo(np.float32).eps)
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Calculates beta-divergence between two numpy.ndarrays
-def beta_div(a: numpy.ndarray, b: numpy.ndarray, beta: float, eduction='mean', square_root=False):
+def beta_div(a: np.ndarray, b: np.ndarray, beta: float, reduction='mean', square_root=False):
     r"""
     Beta-divergence loss function. Code modified from scikit-learn implementation of beta-divergence.
     
@@ -44,7 +45,7 @@ def beta_div(a: numpy.ndarray, b: numpy.ndarray, beta: float, eduction='mean', s
     
     Returns
     -------
-    loss_val : numpy.ndarray
+    loss_val : np.ndarray
         Beta-divergence of arrays a and b (target).
     """
     
@@ -74,7 +75,7 @@ def beta_div(a: numpy.ndarray, b: numpy.ndarray, beta: float, eduction='mean', s
         raise TypeError('Square root option must be of type bool.')
     
     # Get number of samples and features from shape of data
-    b_shape = b.shape
+    b_shape = np.array(b.shape)
     n_samp = b_shape[0]
     n_feat = b_shape[1]
     
@@ -88,29 +89,29 @@ def beta_div(a: numpy.ndarray, b: numpy.ndarray, beta: float, eduction='mean', s
     b_flat = b_flat[eps_idx]
     
     # Used to avoid division by zero
-    # input_flat[input_flat <= EPSILON] = EPSILON
-    input_flat[input_flat == 0] = EPSILON
+    # a_flat[a_flat <= EPSILON] = EPSILON
+    a_flat[a_flat == 0] = EPSILON
     
     # Generalized Kullback-Leibler divergence
     if beta == 1:            
         # Computes sum of target * log(target / input) only where target is non-zero
         div = b_flat / a_flat
-        loss_val = numpy.dot(b_flat, numpy.log(div))
+        loss_val = np.dot(b_flat, np.log(div))
         
         # Add difference between full sum of input matrix and full sum of target matrix
-        loss_val += numpy.sum(a_flat) - numpy.sum(b_flat)
+        loss_val += np.sum(a_flat) - np.sum(b_flat)
     
     # Itakura-Saito divergence
     elif beta == 0:
         div = b_flat / a_flat
-        loss_val = numpy.sum(div) - numpy.prod(b.shape) - numpy.sum(numpy.log(div))
+        loss_val = np.sum(div) - np.prod(b_shape) - np.sum(np.log(div))
     
     # Calculate beta-divergence when beta not equal to 0, 1, or 2
     else:
-        input_beta_sum = numpy.sum(a ** beta)
-        target_input_sum = numpy.dot(target_flat, input_flat ** (beta - 1.0))
-        loss_val = numpy.sum(target_flat ** beta) - (beta * target_input_sum)
-        loss_val += input_beta_sum * (beta - 1.0)
+        a_beta_sum = np.sum(a ** beta)
+        b_input_sum = np.dot(b_flat, a_flat ** (beta - 1.0))
+        loss_val = np.sum(b_flat ** beta) - (beta * b_input_sum)
+        loss_val += a_beta_sum * (beta - 1.0)
         loss_val /= beta * (beta - 1.0)
     
     # Mean reduction
@@ -123,14 +124,14 @@ def beta_div(a: numpy.ndarray, b: numpy.ndarray, beta: float, eduction='mean', s
     
     # Square root of beta-divergence loss
     if square_root:
-        loss_val /= numpy.sqrt(2.0 * loss_val)
+        loss_val /= np.sqrt(2.0 * loss_val)
     
     # Return beta-divergence loss
     return loss_val
 
 
 # Calculates beta-divergence between numpy.ndarray of data and numpy.ndarray of NMF approximation of data
-def beta_div_nmf(X: numpy.ndarray, H: numpy.ndarray, W: numpy.ndarray, beta: float, reduction='mean',
+def beta_div_nmf(X: np.ndarray, H: np.ndarray, W: np.ndarray, beta: float, reduction='mean',
                  square_root=False):
     r"""
     NMF beta-divergence loss function. Code modified from scikit-learn implementation of beta-divergence.
@@ -159,7 +160,7 @@ def beta_div_nmf(X: numpy.ndarray, H: numpy.ndarray, W: numpy.ndarray, beta: flo
         raise ValueError('Data matrix and data reconstruction matrix must have same shape.')
     
     # Get number of samples and features from shape of data
-    X_shape = X.shape
+    X_shape = np.array(X.shape)
     n_samp = X_shape[0]
     n_feat = X_shape[1]
     
@@ -195,30 +196,30 @@ def beta_div_nmf(X: numpy.ndarray, H: numpy.ndarray, W: numpy.ndarray, beta: flo
     X_hat_flat[X_hat_flat <= EPSILON] = EPSILON
     
     # Generalized Kullback-Leibler divergence
-    if self.beta == 1:
+    if beta == 1:
         # Fast and memory efficient computation of sum of elements of matrix multiplication of H and W
-        X_hat_sum = numpy.dot(numpy.sum(H, axis=0), numpy.sum(W, axis=1))
+        X_hat_sum = np.dot(np.sum(H, axis=0), np.sum(W, axis=1))
         
         # Computes sum of X * log(X / HW) only where X is non-zero
         div = X_flat / X_hat_flat
-        loss_val = numpy.dot(X_flat, numpy.log(div))
+        loss_val = np.dot(X_flat, np.log(div))
         
         # Add difference between full sum of matrix multiplication of H and W and full sum of X
-        loss_val += X_hat_sum - numpy.sum(X_flat)
+        loss_val += X_hat_sum - np.sum(X_flat)
     
     # Itakura-Saito divergence
-    elif self.beta == 0:
+    elif beta == 0:
         div = X_flat / X_hat_flat
-        loss_val = numpy.sum(div) - numpy.prod(X.shape) - numpy.sum(numpy.log(div))
+        loss_val = np.sum(div) - np.prod(X_shape) - np.sum(np.log(div))
     
     # Calculate beta-divergence when beta not equal to 0, 1, or 2
     else:
         if issparse(X):
-            X_hat_beta_sum = numpy.sum((H @ W) ** beta)
+            X_hat_beta_sum = np.sum((H @ W) ** beta)
         else:
-            X_hat_beta_sum = numpy.sum(X_hat ** beta)
-        X_X_hat_sum = numpy.dot(X_flat, X_hat_flat ** (beta - 1.0))
-        loss_val = numpy.sum(X_flat ** beta) - (beta * X_X_hat_sum)
+            X_hat_beta_sum = np.sum(X_hat ** beta)
+        X_X_hat_sum = np.dot(X_flat, X_hat_flat ** (beta - 1.0))
+        loss_val = np.sum(X_flat ** beta) - (beta * X_X_hat_sum)
         loss_val += X_hat_beta_sum * (beta - 1.0)
         loss_val /= beta * (beta - 1.0)
     
@@ -232,14 +233,14 @@ def beta_div_nmf(X: numpy.ndarray, H: numpy.ndarray, W: numpy.ndarray, beta: flo
     
     # Square root of beta-divergence loss
     if square_root:
-        loss_val /= numpy.sqrt(2.0 * loss_val)
+        loss_val /= np.sqrt(2.0 * loss_val)
     
     # Return beta-divergence loss
     return loss_val
 
 
 # Trace dot product method
-def _trace_dot(a: numpy.ndarray, b: numpy.ndarray) -> float:
+def _trace_dot(a: np.ndarray, b: np.ndarray) -> float:
     r"""
     Trace of dot product between arrays a and b.
     
@@ -257,14 +258,14 @@ def _trace_dot(a: numpy.ndarray, b: numpy.ndarray) -> float:
     """
     
     # Compute trace dot
-    a_b_trace_dot = numpy.dot(a.ravel(), b.ravel())
+    a_b_trace_dot = np.dot(a.ravel(), b.ravel())
     
     # Return computed trace dot
     return a_b_trace_dot
 
 
 # Special sparse dot product
-def _special_sparse_mm(X: numpy.ndarray, H: numpy.ndarray, W: numpy.ndarray) -> numpy.ndarray:
+def _special_sparse_mm(X: np.ndarray, H: np.ndarray, W: np.ndarray) -> np.ndarray:
     r"""
     Computes product of matrices of H and W where X is non-zero.
     
@@ -287,12 +288,12 @@ def _special_sparse_mm(X: numpy.ndarray, H: numpy.ndarray, W: numpy.ndarray) -> 
     if issparse(X):
         ii, jj = X.nonzero()
         n_vals = ii.shape[0]
-        dot_vals = numpy.empty(n_vals)
+        dot_vals = np.empty(n_vals)
         n_components = H.shape[1]
         batch_size = max(n_components, n_vals // n_components)
         for start in range(0, n_vals, batch_size):
             batch = slice(start, start + batch_size)
-            dot_vals[batch] = numpy.sum(numpy.multiply(H[ii[batch], :], W.T[jj[batch], :]), axis=1)
+            dot_vals[batch] = np.sum(np.multiply(H[ii[batch], :], W.T[jj[batch], :]), axis=1)
         X_hat = dot_vals[ii, :]
         X_hat = X_hat[:, jj]
     
@@ -305,7 +306,7 @@ def _special_sparse_mm(X: numpy.ndarray, H: numpy.ndarray, W: numpy.ndarray) -> 
 
 
 # Squared norm method
-def _squared_norm(a: numpy.ndarray) -> float:
+def _squared_norm(a: np.ndarray) -> float:
     r"""
     Squared Euclidean or Frobenius norm of a.
     
@@ -324,5 +325,5 @@ def _squared_norm(a: numpy.ndarray) -> float:
     a_flat = a.ravel()
     
     # Return dot product
-    return numpy.dot(a_flat, a_flat)
+    return np.dot(a_flat, a_flat)
 

@@ -124,7 +124,7 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
             raise ValueError('Input and target matrices must have same shape.')
         
         # Get number of samples and features from shape of data
-        target_shape = target.shape
+        target_shape = torch.tensor(target.shape)
         n_samp = target_shape[0]
         n_feat = target_shape[1]
         
@@ -153,7 +153,7 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
         # Itakura-Saito divergence
         elif self.beta == 0:
             div = target_flat / input_flat
-            loss_val = torch.sum(div) - torch.prod(torch.Tensor(target.shape)) - torch.sum(torch.log(div))
+            loss_val = torch.sum(div) - torch.prod(target_shape) - torch.sum(torch.log(div))
         
         # Calculate beta-divergence when beta not equal to 0, 1, or 2
         else:
@@ -282,7 +282,7 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
             raise ValueError('Data matrix and data reconstruction matrix must have same shape.')
         
         # Get number of samples and features from shape of data
-        X_shape = X.shape
+        X_shape = torch.tensor(X.shape)
         n_samp = X_shape[0]
         n_feat = X_shape[1]
         
@@ -332,7 +332,7 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
         # Itakura-Saito divergence
         elif self.beta == 0:
             div = X_flat / X_hat_flat
-            loss_val = torch.sum(div) - torch.prod(torch.Tensor(X.shape)) - torch.sum(torch.log(div))
+            loss_val = torch.sum(div) - torch.prod(X_shape) - torch.sum(torch.log(div))
         
         # Calculate beta-divergence when beta not equal to 0, 1, or 2
         else:
