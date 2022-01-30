@@ -59,12 +59,12 @@ loss_val = loss_func(input=a, target=b)
 
 ### NMF beta-divergence between NumPy array of data and data reconstruction
 
-To calculate the NMF-specific beta-divergence between a NumPy array of data matrix `X` and the product of a scores matrix `H` and a components matrix `W`, use the `beta_div_nmf` loss function. The `beta_div_nmf` loss function can beused as follows:
+To calculate the NMF-specific beta-divergence between a NumPy array of data matrix `X` and the product of a scores matrix `H` and a components matrix `W`, use the `nmf_beta_div` loss function. The `nmf_beta_div` loss function can beused as follows:
 
 ```python
 # Calculate beta-divergence loss between data matrix X (target or
 # reference matrix) and matrix product of H and W
-loss_val = beta_div_nmf(X=X, H=H, W=W, beta=0, reduction='mean')
+loss_val = nmf_beta_div(X=X, H=H, W=W, beta=0, reduction='mean')
 
 ```
 
