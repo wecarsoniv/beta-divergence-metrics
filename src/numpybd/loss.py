@@ -131,7 +131,7 @@ def beta_div(a: np.ndarray, b: np.ndarray, beta: float, reduction='mean', square
 
 
 # Calculates beta-divergence between numpy.ndarray of data and numpy.ndarray of NMF approximation of data
-def beta_div_nmf(X: np.ndarray, H: np.ndarray, W: np.ndarray, beta: float, reduction='mean',
+def nmf_beta_div(X: np.ndarray, H: np.ndarray, W: np.ndarray, beta: float, reduction='mean',
                  square_root=False) -> float:
     r"""
     NMF beta-divergence loss function. Code modified from scikit-learn implementation of beta-divergence.

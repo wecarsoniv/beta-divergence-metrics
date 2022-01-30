@@ -68,6 +68,8 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
             Beta value for beta-divergence loss. Default is 0 (Itakura-Saito divergence).
         reduction : str
             Loss reduction type. Default is 'mean' (average over batch size and number of features).
+        square_root : bool
+            Indicates whether to take square root of final loss value. Default is False.
         
         Returns
         -------
@@ -214,7 +216,7 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
     """
     
     # Beta-divergence loss instantiation method
-    def __init__(self, beta: float, reduction='mean'):
+    def __init__(self, beta: float, reduction='mean', square_root=False):
         r"""
         NMF beta-divergence loss class instantiation method.
         
@@ -224,6 +226,8 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
             Beta value for beta-divergence loss. Default is 0 (Itakura-Saito divergence).
         reduction : str
             Loss reduction type. Default is 'mean' (average over batch size and number of features).
+        square_root : bool
+            Indicates whether to take square root of final loss value. Default is False.
         
         Returns
         -------
