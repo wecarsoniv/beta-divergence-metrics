@@ -5,7 +5,7 @@
 # File:  loss.py
 # Author:  Billy Carson
 # Date written:  01-28-2022
-# Last modified:  01-30-2022
+# Last modified:  01-31-2022
 
 r"""
 Description:  Beta-divergence loss NumPy implementations functions definition file. Code modified from scikit-learn
@@ -80,37 +80,37 @@ def beta_div(a: np.ndarray, b: np.ndarray, beta: float, reduction='mean', square
     n_feat = b_shape[1]
     
     # Flatten input and target matrices
-    a_flat = a.ravel()
-    b_flat = b.ravel()
+    a_vec = a.ravel()
+    b_vec = b.ravel()
     
     # Do not affect the zeros: here 0 ** (-1) = 0 and not infinity
-    eps_idx = b_flat > EPSILON
-    a_flat = a_flat[eps_idx]
-    b_flat = b_flat[eps_idx]
+    eps_idx = b_vec > EPSILON
+    a_vec = a_vec[eps_idx]
+    b_vec = b_vec[eps_idx]
     
     # Used to avoid division by zero
-    # a_flat[a_flat == 0] = EPSILON
-    a_flat[a_flat < EPSILON] = EPSILON
+    # a_vec[a_vec == 0] = EPSILON
+    a_vec[a_vec < EPSILON] = EPSILON
     
     # Generalized Kullback-Leibler divergence
     if beta == 1:            
         # Computes sum of target * log(target / input) only where target is non-zero
-        div = b_flat / a_flat
-        loss_val = np.dot(b_flat, np.log(div))
+        div = b_vec / a_vec
+        loss_val = np.dot(b_vec, np.log(div))
         
         # Add difference between full sum of input matrix and full sum of target matrix
-        loss_val += np.sum(a_flat) - np.sum(b_flat)
+        loss_val += np.sum(a_vec) - np.sum(b_vec)
     
     # Itakura-Saito divergence
     elif beta == 0:
-        div = b_flat / a_flat
+        div = b_vec / a_vec
         loss_val = np.sum(div) - np.prod(b_shape) - np.sum(np.log(div))
     
     # Calculate beta-divergence when beta not equal to 0, 1, or 2
     else:
         a_beta_sum = np.sum(a ** beta)
-        b_input_sum = np.dot(b_flat, a_flat ** (beta - 1.0))
-        loss_val = np.sum(b_flat ** beta) - (beta * b_input_sum)
+        b_input_sum = np.dot(b_vec, a_vec ** (beta - 1.0))
+        loss_val = np.sum(b_vec ** beta) - (beta * b_input_sum)
         loss_val += a_beta_sum * (beta - 1.0)
         loss_val /= beta * (beta - 1.0)
     
@@ -177,23 +177,23 @@ def nmf_beta_div(X: np.ndarray, H: np.ndarray, W: np.ndarray, beta: float, reduc
     
     # Compute X_hat where X is not equal to zero
     if issparse(X):
-        X_hat_flat = _special_sparse_mm(X=X, H=H, W=W).ravel()
-        X_flat = X.ravel()
+        X_hat_vec = _special_sparse_mm(X=X, H=H, W=W).ravel()
+        X_vec = X.ravel()
     
     # Compute X_hat, X is not sparse
     else:
         X_hat = H @ W
-        X_hat_flat = X_hat.ravel()
-        X_flat = X.ravel()
+        X_hat_vec = X_hat.ravel()
+        X_vec = X.ravel()
     
     # Do not affect the zeros: here 0 ** (-1) = 0 and not infinity
-    eps_idx = X_flat > EPSILON
-    X_hat_flat = X_hat_flat[eps_idx]
-    X_flat = X_flat[eps_idx]
+    eps_idx = X_vec > EPSILON
+    X_hat_vec = X_hat_vec[eps_idx]
+    X_vec = X_vec[eps_idx]
     
     # Used to avoid division by zero
-    # X_hat_flat[X_hat_flat == 0] = EPSILON
-    X_hat_flat[X_hat_flat < EPSILON] = EPSILON
+    # X_hat_vec[X_hat_vec == 0] = EPSILON
+    X_hat_vec[X_hat_vec < EPSILON] = EPSILON
     
     # Generalized Kullback-Leibler divergence
     if beta == 1:
@@ -201,15 +201,15 @@ def nmf_beta_div(X: np.ndarray, H: np.ndarray, W: np.ndarray, beta: float, reduc
         X_hat_sum = np.dot(np.sum(H, axis=0), np.sum(W, axis=1))
         
         # Computes sum of X * log(X / HW) only where X is non-zero
-        div = X_flat / X_hat_flat
-        loss_val = np.dot(X_flat, np.log(div))
+        div = X_vec / X_hat_vec
+        loss_val = np.dot(X_vec, np.log(div))
         
         # Add difference between full sum of matrix multiplication of H and W and full sum of X
-        loss_val += X_hat_sum - np.sum(X_flat)
+        loss_val += X_hat_sum - np.sum(X_vec)
     
     # Itakura-Saito divergence
     elif beta == 0:
-        div = X_flat / X_hat_flat
+        div = X_vec / X_hat_vec
         loss_val = np.sum(div) - np.prod(X_shape) - np.sum(np.log(div))
     
     # Calculate beta-divergence when beta not equal to 0, 1, or 2
@@ -218,8 +218,8 @@ def nmf_beta_div(X: np.ndarray, H: np.ndarray, W: np.ndarray, beta: float, reduc
             X_hat_beta_sum = np.sum((H @ W) ** beta)
         else:
             X_hat_beta_sum = np.sum(X_hat ** beta)
-        X_X_hat_sum = np.dot(X_flat, X_hat_flat ** (beta - 1.0))
-        loss_val = np.sum(X_flat ** beta) - (beta * X_X_hat_sum)
+        X_X_hat_sum = np.dot(X_vec, X_hat_vec ** (beta - 1.0))
+        loss_val = np.sum(X_vec ** beta) - (beta * X_X_hat_sum)
         loss_val += X_hat_beta_sum * (beta - 1.0)
         loss_val /= beta * (beta - 1.0)
     
@@ -322,8 +322,8 @@ def _squared_norm(a: np.ndarray) -> float:
     """
     
     # Flatten array a
-    a_flat = a.ravel()
+    a_vec = a.ravel()
     
     # Return dot product
-    return np.dot(a_flat, a_flat)
+    return np.dot(a_vec, a_vec)
 

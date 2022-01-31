@@ -131,37 +131,37 @@ class BetaDivLoss(torch.nn.modules.loss._Loss):
         n_feat = target_shape[1]
         
         # Flatten input and target matrices
-        input_flat = input.flatten()
-        target_flat = target.flatten()
+        input_vec = input.flatten()
+        target_vec = target.flatten()
         
         # Do not affect the zeros: here 0 ** (-1) = 0 and not infinity
-        eps_idx = target_flat > EPSILON
-        input_flat = input_flat[eps_idx]
-        target_flat = target_flat[eps_idx]
+        eps_idx = target_vec > EPSILON
+        input_vec = input_vec[eps_idx]
+        target_vec = target_vec[eps_idx]
         
         # Used to avoid division by zero
-        # input_flat[input_flat == 0] = EPSILON
-        input_flat[input_flat < EPSILON] = EPSILON
+        # input_vec[input_vec == 0] = EPSILON
+        input_vec[input_vec < EPSILON] = EPSILON
         
         # Generalized Kullback-Leibler divergence
         if self.beta == 1:            
             # Computes sum of target * log(target / input) only where target is non-zero
-            div = target_flat / input_flat
-            loss_val = torch.dot(target_flat, torch.log(div))
+            div = target_vec / input_vec
+            loss_val = torch.dot(target_vec, torch.log(div))
             
             # Add difference between full sum of input matrix and full sum of target matrix
-            loss_val += torch.sum(input_flat) - torch.sum(target_flat)
+            loss_val += torch.sum(input_vec) - torch.sum(target_vec)
         
         # Itakura-Saito divergence
         elif self.beta == 0:
-            div = target_flat / input_flat
+            div = target_vec / input_vec
             loss_val = torch.sum(div) - torch.prod(target_shape) - torch.sum(torch.log(div))
         
         # Calculate beta-divergence when beta not equal to 0, 1, or 2
         else:
             input_beta_sum = torch.sum(input ** self.beta)
-            target_input_sum = torch.dot(target_flat, input_flat ** (self.beta - 1.0))
-            loss_val = torch.sum(target_flat ** self.beta) - (self.beta * target_input_sum)
+            target_input_sum = torch.dot(target_vec, input_vec ** (self.beta - 1.0))
+            loss_val = torch.sum(target_vec ** self.beta) - (self.beta * target_input_sum)
             loss_val += input_beta_sum * (self.beta - 1.0)
             loss_val /= self.beta * (self.beta - 1.0)
         
@@ -303,23 +303,23 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
         
         # Compute X_hat where X is not equal to zero
         if issparse(X.detach().cpu().numpy()):
-            X_hat_flat = _special_sparse_mm(X=X, H=H, W=W).flatten()
-            X_flat = X.flatten()
+            X_hat_vec = _special_sparse_mm(X=X, H=H, W=W).flatten()
+            X_vec = X.flatten()
         
         # Compute X_hat, X is not sparse
         else:
             X_hat = torch.mm(H, W)
-            X_hat_flat = X_hat.flatten()
-            X_flat = X.flatten()
+            X_hat_vec = X_hat.flatten()
+            X_vec = X.flatten()
         
         # Do not affect the zeros: here 0 ** (-1) = 0 and not infinity
-        eps_idx = X_flat > EPSILON
-        X_hat_flat = X_hat_flat[eps_idx]
-        X_flat = X_flat[eps_idx]
+        eps_idx = X_vec > EPSILON
+        X_hat_vec = X_hat_vec[eps_idx]
+        X_vec = X_vec[eps_idx]
         
         # Used to avoid division by zero
-        # X_hat_flat[X_hat_flat == 0] = EPSILON
-        X_hat_flat[X_hat_flat < EPSILON] = EPSILON
+        # X_hat_vec[X_hat_vec == 0] = EPSILON
+        X_hat_vec[X_hat_vec < EPSILON] = EPSILON
         
         # Generalized Kullback-Leibler divergence
         if self.beta == 1:
@@ -327,15 +327,15 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
             X_hat_sum = torch.dot(torch.sum(H, dim=0), torch.sum(W, dim=1))
             
             # Computes sum of X * log(X / HW) only where X is non-zero
-            div = X_flat / X_hat_flat
-            loss_val = torch.dot(X_flat, torch.log(div))
+            div = X_vec / X_hat_vec
+            loss_val = torch.dot(X_vec, torch.log(div))
             
             # Add difference between full sum of matrix multiplication of H and W and full sum of X
-            loss_val += X_hat_sum - torch.sum(X_flat)
+            loss_val += X_hat_sum - torch.sum(X_vec)
         
         # Itakura-Saito divergence
         elif self.beta == 0:
-            div = X_flat / X_hat_flat
+            div = X_vec / X_hat_vec
             loss_val = torch.sum(div) - torch.prod(X_shape) - torch.sum(torch.log(div))
         
         # Calculate beta-divergence when beta not equal to 0, 1, or 2
@@ -344,8 +344,8 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
                 X_hat_beta_sum = torch.sum(torch.mm(H, W) ** self.beta)
             else:
                 X_hat_beta_sum = torch.sum(X_hat ** self.beta)
-            X_X_hat_sum = torch.dot(X_flat, X_hat_flat ** (self.beta - 1.0))
-            loss_val = torch.sum(X_flat ** self.beta) - (self.beta * X_X_hat_sum)
+            X_X_hat_sum = torch.dot(X_vec, X_hat_vec ** (self.beta - 1.0))
+            loss_val = torch.sum(X_vec ** self.beta) - (self.beta * X_X_hat_sum)
             loss_val += X_hat_beta_sum * (self.beta - 1.0)
             loss_val /= self.beta * (self.beta - 1.0)
         
@@ -448,8 +448,8 @@ class NMFBetaDivLoss(torch.nn.modules.loss._Loss):
         """
         
         # Flatten tensor a
-        a_flat = a.flatten()
+        a_vec = a.flatten()
         
         # Return dot product
-        return torch.dot(a_flat, a_flat)
+        return torch.dot(a_vec, a_vec)
 
